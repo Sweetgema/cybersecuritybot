@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cybersecurity Chatbot</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #0d1117; color: #eee; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    #chat-container { width: 400px; height: 500px; background: #161b22; border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,.6); }
+    #chat-box { flex: 1; padding: 10px; overflow-y: auto; }
+    .message { margin: 5px 0; padding: 8px 12px; border-radius: 8px; max-width: 80%; }
+    .user { background: #238636; align-self: flex-end; }
+    .bot { background: #30363d; align-self: flex-start; }
+    #input-container { display: flex; padding: 10px; background: #21262d; }
+    #message-input { flex: 1; padding: 8px; border: none; border-radius: 5px; }
+    #send-btn { margin-left: 8px; padding: 8px 12px; border: none; background: #238636; color: white; border-radius: 5px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div id="chat-container">
+    <div id="chat-box"></div>
+    <div id="input-container">
+      <input type="text" id="message-input" placeholder="Ask about cybersecurity...">
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById("chat-box");
+    const input = document.getElementById("message-input");
+    const sendBtn = document.getElementById("send-btn");
+
+    function addMessage(text, sender) {
+      const msg = document.createElement("div");
+      msg.classList.add("message", sender);
+      msg.innerText = text;
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const userMessage = input.value.trim();
+      if (!userMessage) return;
+
+      addMessage(userMessage, "user");
+      input.value = "";
+
+      const res = await fetch("http://localhost:3000/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMessage })
+      });
+
+      const data = await res.json();
+      addMessage(data.reply, "bot");
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    input.addEventListener("keypress", e => {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+</body>
+</html>
